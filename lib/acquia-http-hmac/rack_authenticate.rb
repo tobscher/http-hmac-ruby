@@ -11,6 +11,7 @@ module Acquia
         @realm = options[:realm]
         @nonce_checker = options[:nonce_checker]
         @excluded_paths = options[:excluded_paths]
+        @included_paths = options[:included_paths]
         @app = app
       end
 
@@ -19,6 +20,11 @@ module Acquia
         if @excluded_paths && env['PATH_INFO'].start_with?(*@excluded_paths)
           return @app.call(env)
         end
+
+        if @included_paths && !env['PATH_INFO'].start_with?(*@included_paths)
+          return @app.call(env)
+        end
+
         auth_header = env['HTTP_AUTHORIZATION'].to_s
         return unauthorized if auth_header.empty?
 
